@@ -1,11 +1,11 @@
-import PhonebookList from './PhonebookList';
-import AddForm from './AddForm';
-import SearchForm from './SearchForm';
+import PhonebookList from '../containers/PhonebookList';
+import SearchForm from '../containers/SearchForm';
+import AddForm from '../containers/AddForm';
 import './AddForm.scss'
 
 export default function PhonebookBox(props) {
   return (
-    <div className="PhonebookBox container">
+    <div className="PhonebookBox container mt-3">
       <div className="Header card mb-4">
         <div className="p-4 card-header d-flex justify-content-center align-items-center">
           <h1>Phone Book Apps</h1>

@@ -44,7 +44,7 @@ class SearchForm extends Component {
 
               <input
                 onKeyUp={this.handleInputPhone}
-                pattern="[0-9]"
+                pattern="[0-9]*"
                 placeholder="phone"
                 type="tel"
                 className="form-control"
@@ -58,16 +58,12 @@ class SearchForm extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  data: state.phonebooks,
-});
-
 const mapDispatchToProps = (dispatch) => ({
   load: (searchInput) => dispatch(loadPhonebook(searchInput)),
   fetch: () => dispatch(fetchPhonebook()),
 });
 
 export default connect(
-  mapStateToProps,
+  null,
   mapDispatchToProps
 )(SearchForm)

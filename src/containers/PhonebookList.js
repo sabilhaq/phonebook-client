@@ -32,23 +32,29 @@ class PhonebookList extends Component {
     }
 
     const nodeList = phonebooks.map((item, index) => {
-      return <PhonebookItem key={item.id} index={index + 1} id={item.id} name={item.name} phone={item.phone} />;
+      return (
+        <PhonebookItem
+          key={item.id}
+          index={index + 1}
+          id={item.id}
+          name={item.name}
+          phone={item.phone}
+          sent={item.sent}
+        />
+      );
     });
 
     return <tbody>{nodeList}</tbody>;
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   data: state.phonebooks,
 });
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   load: () => dispatch(loadPhonebook()),
   fetch: () => dispatch(fetchPhonebook()),
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(PhonebookList)
+export default connect(mapStateToProps, mapDispatchToProps)(PhonebookList);
