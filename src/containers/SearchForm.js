@@ -1,26 +1,26 @@
-import { Component } from "react";
+import { Component } from 'react';
 import { loadPhonebook, fetchPhonebook } from '../actions';
 import { connect } from 'react-redux';
 
 class SearchForm extends Component {
   constructor(props) {
     super(props);
-    this.state = { name: "", phone: "" };
+    this.state = { name: '', phone: '' };
   }
 
   handleInputName = (event) => {
-    this.setState({ name: event.target.value })
+    this.setState({ name: event.target.value });
     const refreshing = true;
     this.props.fetch(refreshing);
-    this.props.load({ ...this.state, name: event.target.value });
-  }
+    this.props.load({ page: this.props.page, phone: this.state.phone, name: event.target.value });
+  };
 
   handleInputPhone = (event) => {
-    this.setState({ phone: event.target.value })
+    this.setState({ phone: event.target.value });
     const refreshing = true;
     this.props.fetch(refreshing);
-    this.props.load({ ...this.state, phone: event.target.value });
-  }
+    this.props.load({ page: this.props.page, name: this.state.name, phone: event.target.value });
+  };
 
   render() {
     return (
@@ -34,7 +34,13 @@ class SearchForm extends Component {
                 Name
               </label>
 
-              <input onKeyUp={this.handleInputName} placeholder="name" type="text" className="form-control" id="searchName" />
+              <input
+                onKeyUp={this.handleInputName}
+                placeholder="name"
+                type="text"
+                className="form-control"
+                id="searchName"
+              />
             </div>
 
             <div className="col-auto d-flex align-items-center">
@@ -58,12 +64,14 @@ class SearchForm extends Component {
   }
 }
 
+const mapStateToProps = (state) => ({
+  page: state.phonebooks.page,
+  noData: state.phonebooks.noData,
+});
+
 const mapDispatchToProps = (dispatch) => ({
-  load: (searchInput) => dispatch(loadPhonebook(searchInput)),
+  load: (queryString) => dispatch(loadPhonebook(queryString)),
   fetch: () => dispatch(fetchPhonebook()),
 });
 
-export default connect(
-  null,
-  mapDispatchToProps
-)(SearchForm)
+export default connect(mapStateToProps, mapDispatchToProps)(SearchForm);

@@ -1,7 +1,7 @@
 import {
+  LOAD_PHONEBOOK,
   LOAD_PHONEBOOK_SUCCESS,
   LOAD_PHONEBOOK_FAILURE,
-  LOAD_PHONEBOOK,
   ADD_PHONEBOOK,
   ADD_PHONEBOOK_SUCCESS,
   ADD_PHONEBOOK_FAILURE,
@@ -12,6 +12,9 @@ import {
   REMOVE_PHONEBOOK,
   REMOVE_PHONEBOOK_SUCCESS,
   REMOVE_PHONEBOOK_FAILURE,
+  LOAD_MORE_PHONEBOOK_FAILURE,
+  LOAD_MORE_PHONEBOOK_SUCCESS,
+  LOAD_MORE_PHONEBOOK,
 } from '../constant';
 
 const initialState = {
@@ -19,7 +22,9 @@ const initialState = {
   requestInProgress: false,
   refreshing: false,
   error: null,
-
+  page: 1,
+  offset: 0,
+  noData: false,
   deleteInProgress: { inProgress: false, newsId: '' }
 };
 
@@ -44,6 +49,49 @@ const phonebooks = (state = initialState, action) => {
         refreshing: false,
         requestInProgress: false,
         error: null,
+        offset: 15,
+      };
+
+    case LOAD_MORE_PHONEBOOK:
+      return {
+        ...state,
+        requestInProgress: true,
+        error: null,
+      };
+
+    case LOAD_MORE_PHONEBOOK_SUCCESS:
+      if (action.phonebooks.length === 0) {
+        return {
+          ...state,
+          phonebooks: [...state.phonebooks],
+          offset: state.offset + 5,
+          refreshing: false,
+          requestInProgress: false,
+          error: null,
+          noData: true
+        };
+      }
+
+      const morePhonebooks = action.phonebooks.map((item) => ({
+        ...item,
+        sent: true,
+      }));
+
+      return {
+        ...state,
+        phonebooks: [...state.phonebooks, ...morePhonebooks],
+        offset: state.offset + 5,
+        refreshing: false,
+        requestInProgress: false,
+        error: null,
+
+        page: state.page + 1
+      };
+
+    case LOAD_MORE_PHONEBOOK_FAILURE:
+      return {
+        ...state,
+        requestInProgress: false,
       };
 
     case ADD_PHONEBOOK:
@@ -59,6 +107,7 @@ const phonebooks = (state = initialState, action) => {
 
       return {
         ...state,
+        requestInProgress: true,
         phonebooks: newPhonebooks,
       };
 
@@ -72,6 +121,7 @@ const phonebooks = (state = initialState, action) => {
 
       return {
         ...state,
+        requestInProgress: false,
         phonebooks: newPhonebooksSuccess,
       };
 
@@ -84,6 +134,7 @@ const phonebooks = (state = initialState, action) => {
       });
       return {
         ...state,
+        requestInProgress: false,
         phonebooks: newPhonebooksAgain,
       };
 
@@ -104,6 +155,7 @@ const phonebooks = (state = initialState, action) => {
     case REMOVE_PHONEBOOK:
       return {
         ...state,
+        requestInProgress: true,
         deleteInProgress: {
           inProgress: true,
           newsId: action.id
@@ -117,6 +169,7 @@ const phonebooks = (state = initialState, action) => {
 
       return {
         ...state,
+        requestInProgress: false,
         phonebooks: removePhonebooksSuccess,
       };
 

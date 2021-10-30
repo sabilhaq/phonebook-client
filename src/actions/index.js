@@ -12,6 +12,8 @@ import {
   REMOVE_PHONEBOOK_FAILURE,
   EDIT_PHONEBOOK_SUCCESS,
   EDIT_PHONEBOOK_FAILURE,
+  LOAD_MORE_PHONEBOOK_SUCCESS,
+  LOAD_MORE_PHONEBOOK_FAILURE,
 } from '../constant';
 import { ApolloClient, InMemoryCache, gql } from '@apollo/client';
 
@@ -40,27 +42,33 @@ export const fetchPhonebook = () => {
   };
 };
 
-export const loadPhonebook = (queryString) => {
-  let stringQuery = '';
-
-  if (queryString && (queryString.name || queryString.phone)) {
-    stringQuery = `(input: ${JSON.stringify(queryString)})`;
-    stringQuery = stringQuery.replace(`"name"`, 'name');
-    stringQuery = stringQuery.replace(`"phone"`, 'phone');
-  }
-
+export const loadPhonebook = (queryStringObj) => {
+  let { page, name, phone, offset, limit } = queryStringObj;
   return (dispatch) => {
     client
       .query({
         query: gql`
-          {
-            getPhonebooks${stringQuery} {
+          query getPhonebooks(
+            $page: Int!
+            $offset: Int
+            $limit: Int
+            $name: String
+            $phone: String
+          ) {
+            getPhonebooks(page: $page, offset: $offset, limit: $limit, name: $name, phone: $phone) {
               id
               name
               phone
             }
           }
         `,
+        variables: {
+          page: page,
+          offset: offset,
+          limit: limit,
+          name: name,
+          phone: phone,
+        },
       })
       .then((result) => {
         dispatch(loadPhonebookSuccess(result.data.getPhonebooks));
@@ -68,6 +76,51 @@ export const loadPhonebook = (queryString) => {
       .catch(function (error) {
         console.error(error);
         dispatch(loadPhonebookFailure());
+      });
+  };
+};
+
+const loadMorePhonebookSuccess = (phonebooks) => ({
+  type: LOAD_MORE_PHONEBOOK_SUCCESS,
+  phonebooks,
+});
+
+const loadMorePhonebookFailure = () => ({
+  type: LOAD_MORE_PHONEBOOK_FAILURE,
+});
+
+export const loadMorePhonebook = (queryStringObj) => {
+  let { page, offset, limit } = queryStringObj;
+  return (dispatch) => {
+    client
+      .query({
+        query: gql`
+          query getPhonebooks(
+            $page: Int!
+            $offset: Int
+            $limit: Int
+            $name: String
+            $phone: String
+          ) {
+            getPhonebooks(page: $page, offset: $offset, limit: $limit, name: $name, phone: $phone) {
+              id
+              name
+              phone
+            }
+          }
+        `,
+        variables: {
+          page: page,
+          offset: offset,
+          limit: limit,
+        },
+      })
+      .then((result) => {
+        dispatch(loadMorePhonebookSuccess(result.data.getPhonebooks));
+      })
+      .catch(function (error) {
+        console.error(error);
+        dispatch(loadMorePhonebookFailure());
       });
   };
 };
@@ -195,11 +248,6 @@ const editPhonebookFailure = () => ({
 });
 
 export const editPhonebook = (id, name, phone) => {
-  console.log({
-    id,
-    name,
-    phone
-  });
   return (dispatch) => {
     client
       .mutate({

@@ -216,4 +216,7 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   remove: () => dispatch(removePhonebook(ownProps.id)),
 });
 
-export default connect(null, mapDispatchToProps)(PhonebookItem);
+export default connect(
+  null,
+  mapDispatchToProps
+)(PhonebookItem);
